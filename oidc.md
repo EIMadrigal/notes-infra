@@ -75,7 +75,7 @@ IdP验证上述请求, 生成response给到SP:
 
 #### Step 7
 
-SP解析上述的response, 获取当前用户信息:
+SP解析上述的`id_token`, 获取当前用户信息:
 
 ```
 {
@@ -84,3 +84,8 @@ SP解析上述的response, 获取当前用户信息:
   "email_verified": "true"
 }
 ```
+
+如果通过`id_token` 获取的信息不够, SP可以利用`access_token` 访问IdP的userinfo endpoint, 获取更多的信息.
+
+
+
