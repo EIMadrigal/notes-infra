@@ -1,7 +1,6 @@
 # Table of contents
 
 * [Systemd](README.md)
-* [Monitor](monitor.md)
 * [PostgreSQL](postgresql.md)
 * [JSON](json.md)
 * [Network](network.md)
