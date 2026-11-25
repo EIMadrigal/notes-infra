@@ -1,57 +1,25 @@
-# Systemd
+# SAML
 
-### Linux systemd service
+企业的SSO方案通常包含2部分:
 
-* system service: `/etc/systemd/system/xxx.service` -> `/usr/lib/systemd/system/xxx.service`
-  1. root user
-  2. `sudo systemctl enable xxx.service`
-  3. config files auto generates in `/etc/xxx/`
-  4.
-* user service to all users: `/etc/systemd/user/xxx.service` -> `/usr/lib/systemd/user/xxx.service`
-  1. service avaiable to all users at once
-  2.
-* user service to specific user: `~/.config/systemd/user/xxx.service`
-  1. `systemctl --user enable xxx.service`
-  2. need have its own config files if it's a self-defined service
-  3. ```
-     journalctl --user -u custom.service
-     ```
+1. SP
+2. IdP
 
-if `sudo yum install httpd`, then for a specific service xxx, its config file is in `/etc/xxx/`
+用户在访问SP之前需要认证, 为了避免访问不同的SP时频繁输入密码, SP可以通过配置, 将认证统一转到IdP一侧进行处理. IdP会维护用户的认证状态, 并且将某些用户信息返回给SP. 常用的IdP包括PingFederate, AAD等.
 
-```bash
-/etc/xxx/conf  # main file is /etc/xxx/conf/xxx.conf
-/etc/xxx/conf.d
-/etc/xxx/conf.modules.d
-/etc/xxx/logs
-/etc/xxx/modules
-/etc/xxx/run
-/etc/xxx/state
-```
+在用户浏览器, SP, IdP三者的交互过程中, 就需要一种规范来规定交互过程中的request和response格式, 以便3者都能正确解析并通信. 这就是所谓的协议, 常用的协议包括SAML, OIDC等.
 
-[Placing httpd config outside /etc/httpd/conf](https://stackoverflow.com/questions/45288872/placing-httpd-config-outside-etc-httpd-conf)
+一个常见的SP发起的访问大致如下:
 
-[How to create a systemd service in Linux](https://linuxhandbook.com/create-systemd-services/)
+1. 浏览器访问SP的资源, SP弹出登录页面, 用户可以输入密码或者点击SSO登录.
+2. 点击SSO按钮后, SP生成认证请求SAMLRequest返回给浏览器, 请求中包含了IdP的目标地址.
+3. 浏览器收到上述认证请求后, 携带SAMLRequest自动重定向到IdP的目的地址.
+4. IdP收到认证请求后, 会检查Cookies判断用户是否已经认证. 如果是, 跳到5; 否则让用户输入用户名/密码, 跳到5.
+5. IdP解析并验证SAMLRequest, 获取ACS等信息, 生成SAMLResponse.
+6. 浏览器收到SAMLResponse, 携带SAMLResponse重定向到SP的ACS.
+7. SP验证SAMLResponse, 获取需要的用户信息.
 
-[Systemd 入门教程：实战篇](https://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-part-two.html)
+#### Reference
 
-[systemd user services and systemctl --user](https://nts.strzibny.name/systemd-user-services/)
-
-[centos7上搭建http服务器以及设置目录访问](https://www.cnblogs.com/snake553/p/8856729.html)
-
-
-
-
-
-nginx executable locates in `/usr/sbin`, and `/sbin` is a symlink of it. So we can run using `/usr/sbin/nginx`.
-
-nginx's behavior is determined by the config file. By default, it's `/etc/nginx/nginx.conf`. But if you don't have permission to edit it, you can specify an alternative configuration and error file:
-
-```
-/usr/sbin/nginx -c <my_nginx.conf> -e <my_error.log>
-```
-
-On system reboots, we need to relaunch the above process. Thus we can config nginx as service using system managers, such as `systemd`, `init` or `upstart`. It can run and manage nginx executable by creating services.
-
-
-
+1. [SAML 2.0](https://www.cnblogs.com/xiaosiyuan/p/8080515.html)
+2. [How AAD identify user in AuthnRequest](https://stackoverflow.com/questions/70627478)
